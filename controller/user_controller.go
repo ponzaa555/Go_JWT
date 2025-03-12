@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -53,11 +54,41 @@ func SignUp() gin.HandlerFunc {
 		user.Update_At, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.ID = primitive.NewObjectID()
 		user.User_Id = user.ID.Hex()
+		token, refreshToken := helpers.GenerateAllTokens(*user.Email, *user.First_Name, *user.Last_Name, *user.User_Type, *&user.User_Id)
+		user.Token = &token
+		user.Refresh_Token = &refreshToken
+
+		// inset token to database
+		resultInsertionNumber, insetErr := userCollection.InsertOne(ctx, user)
+		if insetErr != nil {
+			msg := fmt.Sprintf("Can't create user")
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		}
+		defer cancel()
+		c.JSON(http.StatusOK, resultInsertionNumber)
 	}
 }
 
-func Login() {
+func Login() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		var user model.User
+		var foundUser model.User
 
+		if err := c.BindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		// find user from db
+		err := userCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
+		defer cancel()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "email or password is incorrect"})
+			return
+		}
+		passwordIsValid, msg := VerifyPassword(*user.Password, *foundUser.Password)
+		defer cancel()
+	}
 }
 
 func GetUser() gin.HandlerFunc {
@@ -89,6 +120,6 @@ func HashPassowrd() {
 
 }
 
-func VerifyPassword() {
-
+func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
+	err := cr
 }
