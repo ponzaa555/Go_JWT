@@ -1,42 +1,39 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"os"
 
+	"github.com/ponzaa555/Go_JWT/database"
 	routes "github.com/ponzaa555/Go_JWT/routes"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ponzaa555/Go_JWT/database"
-	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func main() {
 
 	port := os.Getenv("PORT")
 
-	coll := database.DBinstance()
+	// restaurant_id := "40356018"
 
-	restaurant_id := "40356018"
+	// var result bson.M
+	// fmt.Println("Pass Database Connection")
+	// err := coll.FindOne(context.TODO(), bson.D{{"restaurant_id", restaurant_id}}).
+	// 	Decode(&result)
+	// if err == mongo.ErrNoDocuments {
+	// 	fmt.Printf("No document was found with the restaurant_id %s\n", restaurant_id)
+	// }
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// jsonData, err := json.MarshalIndent(result, "", "    ")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Printf("%s\n", jsonData)
 
-	var result bson.M
-	fmt.Println("Pass Database Connection")
-	err := coll.FindOne(context.TODO(), bson.D{{"restaurant_id", restaurant_id}}).
-		Decode(&result)
-	if err == mongo.ErrNoDocuments {
-		fmt.Printf("No document was found with the restaurant_id %s\n", restaurant_id)
-	}
-	if err != nil {
-		panic(err)
-	}
-	jsonData, err := json.MarshalIndent(result, "", "    ")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s\n", jsonData)
+	//check connect Database
+	_ = database.DBinstance()
+
 	if port == "" {
 		port = "8000"
 	}
@@ -55,4 +52,5 @@ func main() {
 	})
 
 	router.Run(":" + port)
+	// defer database.CloseDB()
 }

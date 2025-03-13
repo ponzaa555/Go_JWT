@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -18,17 +19,12 @@ func DBinstance() *mongo.Client {
 		log.Fatal("Error Loading .env file")
 	}
 	mongoDb := os.Getenv("MONGODB_URL")
-	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(options.Client().ApplyURI(mongoDb))
+
+	client, err := mongo.Connect(options.Client().ApplyURI(mongoDb).SetConnectTimeout(10 * time.Second))
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Connect to Mongo DB")
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
 	return client
 }
 
@@ -37,4 +33,16 @@ var Client *mongo.Client = DBinstance()
 func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collection {
 	var collection *mongo.Collection = client.Database("JWT").Collection(collectionName)
 	return collection
+}
+
+//	defer func() {
+//		if err := client.Disconnect(context.TODO()); err != nil {
+//			panic(err)
+//		}
+//	}()
+func CloseDB() {
+	if err := Client.Disconnect(context.TODO()); err != nil {
+		log.Fatal("Error closing MongoDB connection:", err)
+	}
+	fmt.Println("MongoDB connection closed")
 }
