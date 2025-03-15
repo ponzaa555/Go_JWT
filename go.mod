@@ -14,6 +14,8 @@ replace github.com/ponzaa555/Go_JWT/helpers v0.0.0 => ./helpers
 
 replace github.com/ponzaa555/Go_JWT/model v0.0.0 => ./model
 
+replace github.com/ponzaa555/Go_JWT/middleware v0.0.0 => ./middleware
+
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.10.0

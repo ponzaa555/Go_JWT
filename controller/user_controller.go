@@ -66,13 +66,13 @@ func SignUp() gin.HandlerFunc {
 		user.Refresh_Token = &refreshToken
 
 		// inset token to database
-		resultInsertionNumber, insetErr := userCollection.InsertOne(ctx, user)
+		_, insetErr := userCollection.InsertOne(ctx, user)
 		if insetErr != nil {
 			msg := fmt.Sprintf("Can't create user")
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		}
 		defer cancel()
-		c.JSON(http.StatusOK, resultInsertionNumber)
+		c.JSON(http.StatusOK, gin.H{"userId": user.ID})
 	}
 }
 
